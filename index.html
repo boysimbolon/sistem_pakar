@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pakar Cuaca</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-500 text-white p-4">
+        <h1 class="text-2xl font-bold">Sistem Pakar Cuaca</h1>
+        <nav>
+            <ul class="flex space-x-4">
+                <li><a href="#forward" class="hover:underline">Forward Chaining</a></li>
+                <li><a href="#backward" class="hover:underline">Backward Chaining</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="p-4">
+        <section id="forward" class="hidden">
+            <h2 class="text-xl font-semibold">Forward Chaining</h2>
+            <p>Pilih gejala cuaca:</p>
+            <input type="checkbox" id="rainy" value="hujan"> Hujan <br>
+            <input type="checkbox" id="cloudy" value="mendung"> Mendung <br>
+            <input type="checkbox" id="sunny" value="cerah"> Cerah <br>
+            <button onclick="runForwardChaining()" class="mt-2 px-4 py-2 bg-blue-500 text-white">Prediksi</button>
+            <p id="result-forward" class="mt-2"></p>
+        </section>
+        <section id="backward" class="hidden">
+            <h2 class="text-xl font-semibold">Backward Chaining</h2>
+            <p>Masukkan kondisi cuaca:</p>
+            <select id="weather-condition">
+                <option value="cerah">Cerah</option>
+                <option value="mendung">Mendung</option>
+                <option value="hujan">Hujan</option>
+            </select>
+            <button onclick="runBackwardChaining()" class="mt-2 px-4 py-2 bg-blue-500 text-white">Periksa Gejala</button>
+            <p id="result-backward" class="mt-2"></p>
+        </section>
+    </main>
+    <footer class="bg-blue-500 text-white p-4 mt-4">
+        <p>&copy; 2025 Sistem Pakar Cuaca</p>
+    </footer>
+    
+    <script>
+        function updateDisplay() {
+            document.getElementById('forward').classList.toggle('hidden', window.location.hash !== '#forward');
+            document.getElementById('backward').classList.toggle('hidden', window.location.hash !== '#backward');
+        }
+        window.addEventListener('hashchange', updateDisplay);
+        updateDisplay();
+        
+        function runForwardChaining() {
+            let gejala = [];
+            if (document.getElementById('rainy').checked) gejala.push("hujan");
+            if (document.getElementById('cloudy').checked) gejala.push("mendung");
+            if (document.getElementById('sunny').checked) gejala.push("cerah");
+            
+            let hasil = "Cuaca tidak dapat ditentukan";
+            if (gejala.includes("hujan")) hasil = "Cuaca kemungkinan Hujan";
+            else if (gejala.includes("mendung")) hasil = "Cuaca kemungkinan Mendung";
+            else if (gejala.includes("cerah")) hasil = "Cuaca kemungkinan Cerah";
+            
+            document.getElementById('result-forward').innerText = hasil;
+        }
+        
+        function runBackwardChaining() {
+            let condition = document.getElementById('weather-condition').value;
+            let gejala = "Gejala tidak ditemukan";
+            if (condition === "hujan") gejala = "Gejala: Hujan, Awan Gelap, Angin Kencang";
+            else if (condition === "mendung") gejala = "Gejala: Langit Tertutup Awan";
+            else if (condition === "cerah") gejala = "Gejala: Langit Biru, Matahari Bersinar";
+            
+            document.getElementById('result-backward').innerText = gejala;
+        }
+    </script>
+</body>
+</html>
