@@ -223,51 +223,69 @@
             }
         }
 
-        function submitAnswers() {
-            let scores = { "Cerah": 0, "Mendung": 0, "Hujan": 0 };
-            userAnswers.forEach(answer => {
-                for (let category in classifications) {
-                    if (classifications[category].includes(answer)) {
-                        scores[category]++;
-                    }
-                }
-            });
+function submitAnswers() {
+        let scores = { "Cerah": 0, "Mendung": 0, "Hujan": 0 };
+        let totalAnswers = userAnswers.filter(answer => answer !== null).length;
 
-            const totalAnswers = userAnswers.filter(answer => answer !== null).length;
-            const percentages = {};
-            for (let category in scores) {
-                percentages[category] = ((scores[category] / totalAnswers) * 100).toFixed(2);
-            }
-
-            let maxCategory = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-
+        if (totalAnswers === 0) {
             document.getElementById("result-page").style.display = "block";
             document.querySelector(".container").style.display = "none";
-
             document.getElementById("result").innerHTML = `
                 <p>Persentase Cuaca:</p>
                 <ul>
-                    <li>Cerah: ${percentages["Cerah"]}%</li>
-                    <li>Mendung: ${percentages["Mendung"]}%</li>
-                    <li>Hujan: ${percentages["Hujan"]}%</li>
+                    <li>Cerah: 0%</li>
+                    <li>Mendung: 0%</li>
+                    <li>Hujan: 0%</li>
                 </ul>
-                <p>Cuaca yang paling mungkin: <strong>${maxCategory}</strong></p>
+                <p><strong>Tidak ada cuaca yang dapat diprediksi karena tidak ada jawaban yang dipilih.</strong></p>
             `;
-
-            const suggestionContainer = document.getElementById("suggestions");
-            suggestionContainer.innerHTML = `
-                <h3>Saran Aktivitas:</h3>
-                <ul>
-                    ${suggestions[maxCategory].activities.map(activity => `<li>${activity}</li>`).join("")}
-                </ul>
-                <h3>Saran Kewaspadaan:</h3>
-                <ul class="warnings">
-                    ${suggestions[maxCategory].warnings.map(warning => `<li>${warning}</li>`).join("")}
-                </ul>
-            `;
+            document.getElementById("suggestions").innerHTML = "";
+            return;
         }
+
+        userAnswers.forEach(answer => {
+            for (let category in classifications) {
+                if (classifications[category].includes(answer)) {
+                    scores[category]++;
+                }
+            }
+        });
+
+        const percentages = {};
+        for (let category in scores) {
+            percentages[category] = ((scores[category] / totalAnswers) * 100).toFixed(2);
+        }
+
+        let maxCategory = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+
+        document.getElementById("result-page").style.display = "block";
+        document.querySelector(".container").style.display = "none";
+
+        document.getElementById("result").innerHTML = `
+            <p>Persentase Cuaca:</p>
+            <ul>
+                <li>Cerah: ${percentages["Cerah"]}%</li>
+                <li>Mendung: ${percentages["Mendung"]}%</li>
+                <li>Hujan: ${percentages["Hujan"]}%</li>
+            </ul>
+            <p>Cuaca yang paling mungkin: <strong>${maxCategory}</strong></p>
+        `;
+
+        const suggestionContainer = document.getElementById("suggestions");
+        suggestionContainer.innerHTML = `
+            <h3>Saran Aktivitas:</h3>
+            <ul>
+                ${suggestions[maxCategory].activities.map(activity => `<li>${activity}</li>`).join("")}
+            </ul>
+            <h3>Saran Kewaspadaan:</h3>
+            <ul class="warnings">
+                ${suggestions[maxCategory].warnings.map(warning => `<li>${warning}</li>`).join("")}
+            </ul>
+        `;
+    }
 
         document.addEventListener("DOMContentLoaded", displayQuestions);
     </script>
+
 </body>
 </html>
