@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertanyaan Cuaca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .method-selection {
+            margin-bottom: 20px;
+        }
+        .method-selection a {
+            background: #008CBA;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        .method-selection a:hover {
+            background: #005f73;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pertanyaan Cuaca</h1>
+        <div class="method-selection">
+            <p>Pilih metode inferensi:</p>
+            <a href="forward.html" onclick="selectMethod('forward')">Forward Chaining</a>
+            <a href="backward.html" onclick="selectMethod('backward')">Backward Chaining</a>
+        </div>
+    </div>
+</body>
+</html>

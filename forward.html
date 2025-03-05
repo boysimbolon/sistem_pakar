@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertanyaan Cuaca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .answers {
+            list-style: none;
+            padding: 0;
+        }
+        .answers li {
+            background: #008CBA;
+            color: white;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .answers li:hover {
+            background: #005f73;
+        }
+        .navigation {
+            margin-top: 20px;
+        }
+        .navigation button {
+            background: #008CBA;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .navigation button:hover {
+            background: #005f73;
+        }
+        .result-page {
+            display: none;
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .result-page h2 {
+            text-align: center;
+        }
+        .suggestions {
+            margin-top: 20px;
+        }
+        .suggestions ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .suggestions ul li {
+            margin: 10px 0;
+        }
+        .suggestions ul li::before {
+            content: "✅ ";
+        }
+        .suggestions ul.warnings li::before {
+            content: "⚠ ";
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .question {
+                font-size: 16px;
+            }
+            .answers li {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pertanyaan Cuaca</h1>
+        <div id="questions-container"></div>
+        <div class="navigation">
+            <button id="prevButton" onclick="prevQuestion()" style="display:none;">Previous</button>
+            <button id="nextButton" onclick="nextQuestion()">Next</button>
+            <button id="submitButton" onclick="submitAnswers()" style="display:none;">Submit</button>
+        </div>
+    </div>
+
+    <div class="result-page" id="result-page">
+        <h2>Hasil Prediksi Cuaca</h2>
+        <div id="result"></div>
+        <div class="suggestions" id="suggestions"></div>
+    </div>
+    
+    <script>
+        const questions = [
+            { id: 1, question: "Bagaimana warna langit?", answers: ["Warna langit biru terang", "Warna langit abu-abu muda", "Warna langit abu-abu tua", "Warna gelap pekat"] },
+            { id: 2, question: "Bagaimana kondisi matahari?", answers: ["Matahari Jelas", "Matahari redup"] },
+            { id: 3, question: "Bagaimana kondisi awan?", answers: ["Sedikit berawan", "Banyak berawan", "Tebal berawan"] },
+            { id: 4, question: "Bagaimana suhu udara?", answers: ["Hangat/Panas", "Sejuk", "Dingin"] },
+            { id: 5, question: "Bagaimana kondisi permukaan tanah?", answers: ["Permukaan tanah kering", "Permukaan tanah lembab", "Genangan air"] },
+            { id: 6, question: "Bagaimana kondisi angin?", answers: ["Angin lembut", "Angin sejuk"] }
+        ];
+
+        const classifications = {
+            "Cerah": ["Warna langit biru terang", "Matahari Jelas", "Angin lembut", "Permukaan tanah kering", "Sedikit berawan", "Hangat/Panas"],
+            "Mendung": ["Warna langit abu-abu muda", "Matahari redup", "Angin sejuk", "Sejuk", "Permukaan tanah lembab", "Banyak berawan"],
+            "Hujan": ["Warna langit abu-abu tua", "Matahari redup", "Tebal berawan", "Dingin", "Genangan air", "Angin sejuk"]
+        };
+
+        const suggestions = {
+            "Cerah": {
+                activities: [
+                    "Berolahraga di luar ruangan (jogging, bersepeda, atau bermain bola).",
+                    "Pergi piknik ke taman atau pantai.",
+                    "Berkebun atau merawat tanaman.",
+                    "Cuci pakaian atau kendaraan karena cepat kering.",
+                    "Gunakan tabir surya jika berada di luar untuk waktu lama."
+                ],
+                warnings: [
+                    "Hindari terlalu lama di bawah sinar matahari agar tidak dehidrasi.",
+                    "Gunakan topi dan kacamata hitam jika keluar rumah."
+                ]
+            },
+            "Mendung": {
+                activities: [
+                    "Minum teh atau kopi hangat untuk menghangatkan tubuh.",
+                    "Bekerja atau belajar di dalam rumah dengan suasana nyaman.",
+                    "Menonton film atau membaca buku.",
+                    "Jika terpaksa keluar, gunakan jas hujan atau payung."
+                ],
+                warnings: [
+                    "Waspada terhadap jalanan licin saat berkendara atau berjalan.",
+                    "Periksa atap rumah agar tidak bocor.",
+                    "Pastikan peralatan elektronik terlindung dari air hujan."
+                ]
+            },
+            "Hujan": {
+                activities: [
+                    "Waktu yang cocok untuk berjalan santai atau jogging karena tidak terlalu panas.",
+                    "Menyelesaikan pekerjaan di luar rumah sebelum hujan turun.",
+                    "Gunakan cahaya tambahan di dalam rumah karena mendung bisa membuat ruangan lebih gelap."
+                ],
+                warnings: [
+                    "Bawa payung atau jas hujan jika bepergian, karena hujan bisa turun sewaktu-waktu.",
+                    "Jika merasa suhu lebih dingin dari biasanya, gunakan pakaian hangat."
+                ]
+            }
+        };
+
+        let userAnswers = new Array(questions.length).fill(null);
+        let currentQuestionIndex = 0;
+
+        function displayQuestions() {
+            const container = document.getElementById("questions-container");
+            container.innerHTML = "";
+
+            const question = questions[currentQuestionIndex];
+            const questionElement = document.createElement("div");
+            questionElement.classList.add("question");
+            questionElement.textContent = question.question;
+
+            const answerList = document.createElement("ul");
+            answerList.classList.add("answers");
+            
+            question.answers.forEach(ans => {
+                const answerItem = document.createElement("li");
+                answerItem.textContent = ans;
+                answerItem.addEventListener("click", () => selectAnswer(question.id, ans));
+                if (userAnswers[question.id - 1] === ans) {
+                    answerItem.style.backgroundColor = "#005f73";
+                }
+                answerList.appendChild(answerItem);
+            });
+
+            container.appendChild(questionElement);
+            container.appendChild(answerList);
+
+            document.getElementById("prevButton").style.display = currentQuestionIndex === 0 ? "none" : "inline-block";
+            document.getElementById("nextButton").style.display = currentQuestionIndex === questions.length - 1 ? "none" : "inline-block";
+            document.getElementById("submitButton").style.display = currentQuestionIndex === questions.length - 1 ? "inline-block" : "none";
+        }
+
+        function selectAnswer(questionId, answer) {
+            userAnswers[questionId - 1] = answer;
+            displayQuestions();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestions();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestions();
+            }
+        }
+
+        function submitAnswers() {
+            let scores = { "Cerah": 0, "Mendung": 0, "Hujan": 0 };
+            userAnswers.forEach(answer => {
+                for (let category in classifications) {
+                    if (classifications[category].includes(answer)) {
+                        scores[category]++;
+                    }
+                }
+            });
+
+            const totalAnswers = userAnswers.filter(answer => answer !== null).length;
+            const percentages = {};
+            for (let category in scores) {
+                percentages[category] = ((scores[category] / totalAnswers) * 100).toFixed(2);
+            }
+
+            let maxCategory = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+
+            document.getElementById("result-page").style.display = "block";
+            document.querySelector(".container").style.display = "none";
+
+            document.getElementById("result").innerHTML = `
+                <p>Persentase Cuaca:</p>
+                <ul>
+                    <li>Cerah: ${percentages["Cerah"]}%</li>
+                    <li>Mendung: ${percentages["Mendung"]}%</li>
+                    <li>Hujan: ${percentages["Hujan"]}%</li>
+                </ul>
+                <p>Cuaca yang paling mungkin: <strong>${maxCategory}</strong></p>
+            `;
+
+            const suggestionContainer = document.getElementById("suggestions");
+            suggestionContainer.innerHTML = `
+                <h3>Saran Aktivitas:</h3>
+                <ul>
+                    ${suggestions[maxCategory].activities.map(activity => `<li>${activity}</li>`).join("")}
+                </ul>
+                <h3>Saran Kewaspadaan:</h3>
+                <ul class="warnings">
+                    ${suggestions[maxCategory].warnings.map(warning => `<li>${warning}</li>`).join("")}
+                </ul>
+            `;
+        }
+
+        document.addEventListener("DOMContentLoaded", displayQuestions);
+    </script>
+</body>
+</html>
